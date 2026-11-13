@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Muscle Tissue Virtual Lab</title>
+<style>
+:root{--bg:#eef1f5;--card:#fff;--tx:#18212f;--mu:#5b6677;--bd:#cfd6e0;--ac:#1d5fa8;--ok:#2f8a5b;--wa:#d99a2b;--dg:#c43d3d;--rec:#1f78b4;--ctl:#7a4fb0;--eff:#b8651b;--rsp:#2f8a5b}
+@media(prefers-color-scheme:dark){:root{--bg:#10151d;--card:#19202b;--tx:#e7ebf2;--mu:#9aa5b6;--bd:#2f3948;--ac:#6aa5ea;--ok:#4cc38a;--wa:#e8b04e;--dg:#ee6b6b;--rec:#5ab0e6;--ctl:#ab8ce2;--eff:#e8923f;--rsp:#4cc38a}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx)}
+header{padding:14px 18px 10px;background:var(--card);border-bottom:1px solid var(--bd)}
+h1{font:600 21px Georgia,serif;margin:0 0 8px}h2{font:600 19px Georgia,serif;margin:6px 0 10px}h3{font-size:15px;margin:0 0 6px}
+#tabs{display:flex;gap:6px;flex-wrap:wrap}
+#tabs button{padding:7px 12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:8px;cursor:pointer;font:inherit}
+#tabs button[aria-selected=true]{background:var(--ac);color:#fff;border-color:var(--ac)}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+main{max-width:980px;margin:0 auto;padding:14px}.v[hidden]{display:none}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin:10px 0}
+.path{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}.ar{align-self:center;color:var(--mu)}
+.box{flex:1 1 130px;border:2px solid var(--c,var(--bd));border-radius:8px;padding:6px 8px;font-size:13px;background:var(--card);transition:box-shadow .2s,background .2s;opacity:.7}
+.box[data-i="1"]{--c:var(--rec)}.box[data-i="2"]{--c:var(--ctl)}.box[data-i="3"]{--c:var(--eff)}.box[data-i="4"]{--c:var(--rsp)}
+.box[data-i="0"]{--c:var(--mu)}.box.done{opacity:1}
+.box.on{background:var(--c);color:var(--bg);box-shadow:0 0 0 4px var(--c);opacity:1;transform:scale(1.04);animation:pl .8s ease-in-out infinite alternate}@keyframes pl{to{box-shadow:0 0 0 9px transparent}}
+.now{margin:10px 0;padding:10px 12px;border-radius:8px;background:var(--card);border:1px solid var(--bd);font-weight:600}
+.card .term,.card .seg{background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:99px;padding:5px 12px;margin:2px}
+.card .seg.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.row{display:grid;grid-template-columns:150px 1fr 250px;gap:12px;margin:12px 0}.rowp{display:grid;grid-template-columns:340px 1fr;gap:12px;margin:12px 0}
+.gauge{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center;align-self:start}
+.big{font:600 34px Georgia,serif}.badge{margin-top:6px;padding:3px 8px;border-radius:99px;font-size:13px;font-weight:600;border:2px solid var(--ok);color:var(--ok)}
+.badge.w{border-color:var(--wa);color:var(--wa)}.badge.d{border-color:var(--dg);color:var(--dg)}
+canvas{width:100%;height:auto;background:var(--card);border:1px solid var(--bd);border-radius:10px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.ctl label{display:flex;flex-direction:column;font-size:13px;gap:3px;flex:1 1 190px}
+select,textarea{font:inherit;padding:6px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--tx)}
+button.pr,.card button{font:inherit;padding:8px 14px;border:0;border-radius:8px;background:var(--ac);color:#fff;cursor:pointer}
+.two{display:flex;flex-wrap:wrap;gap:10px}.two>.card{flex:1 1 300px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}.chip{border:1px solid var(--bd);border-radius:99px;padding:2px 9px;font-size:12px;color:var(--mu)}
+.chip.on{border-color:var(--eff);color:var(--eff);font-weight:700;box-shadow:0 0 0 2px var(--eff)}
+ol,ul{margin:4px 0;padding-left:20px}.mu{color:var(--mu)}.res{margin:8px 0;padding:0}.res p{margin:6px 0;padding:8px 12px;border-left:4px solid var(--ac);background:var(--card);border-radius:4px}
+.res .good{border-color:var(--ok)}.res .bad{border-color:var(--dg)}
+abbr{text-decoration:underline dotted;cursor:help}summary{cursor:pointer;font-weight:600}
+textarea{width:100%;min-height:220px}
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}#gate[hidden]{display:none}
+#gf{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:22px;max-width:400px;width:100%}#gf h1{font-size:22px}
+#gf label{display:flex;flex-direction:column;gap:3px;margin:12px 0;font-size:14px}#gf input,#gf select{font:inherit;padding:8px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--tx)}
+.err{color:var(--dg);font-size:13px;min-height:20px;white-space:pre-line}
+#who{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;font-size:13px;color:var(--mu);margin-top:8px}#who b{color:var(--tx)}
+#who button{font:inherit;font-size:12px;padding:2px 8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:6px;cursor:pointer}
+.dv{width:100%;height:auto}.dv text{font:11px system-ui;fill:var(--mu)}
+.dv .bdy *{fill:var(--tint,transparent);fill-opacity:var(--ti,0);stroke:var(--mu);stroke-width:1.5}
+.dv .org{fill:var(--card);stroke:var(--eff);stroke-width:2}.dv .org.act{fill:var(--eff);animation:gl .6s ease-in-out infinite alternate}
+.dv .vs{fill:none;stroke:var(--mu);stroke-width:var(--vw,3)}.dv .vs.act{fill:none;stroke:var(--eff)}
+.dv .lim.act{fill:var(--eff);fill-opacity:.8;animation:shk .1s linear infinite alternate}
+.dv .drp{fill:var(--rec);opacity:0;transition:opacity .3s}.dv .drp.act{opacity:1}
+.dv .sen{fill:var(--card);stroke:var(--rec);stroke-width:2}.dv .sen.on{fill:var(--rec)}
+.dv .ctl{fill:var(--card);stroke:var(--ctl);stroke-width:2}.dv .ctl.on{fill:var(--ctl)}
+.dv .ring{fill:none;stroke-dasharray:3 3}.dv .ring.on{fill:none;stroke-width:4}
+.dv .hb{transform-box:fill-box;transform-origin:center;animation:hb var(--hr,1s) ease-in-out infinite}
+.dv .gd{fill:var(--wa)}.dv .fl{opacity:0;fill:none;stroke:var(--ok);stroke-width:2.5;transition:opacity .3s}.dv .fl.act{opacity:1}
+.dv .dp{stroke:var(--card);stroke-width:1}.dv .drp.act .dp{animation:fall 1s linear infinite}.dv text.act{fill:var(--eff);font-weight:700}
+@keyframes fall{from{transform:translateY(-3px);opacity:1}to{transform:translateY(10px);opacity:.2}}
+.dv .pfo{fill:var(--ctl);opacity:0;transition:opacity .3s}
+@keyframes gl{to{opacity:.55}}@keyframes shk{to{transform:translateX(2px)}}@keyframes hb{50%{transform:scale(1.14)}}
+.box[data-i="5"]{--c:var(--rsp)}
+.slide{width:100%;max-width:440px;height:auto;border:1px solid var(--bd);border-radius:8px;background:var(--card);display:block;margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0}th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}
+.ctl label.cb{flex-direction:row;flex:0 0 auto;align-items:center;gap:6px}
+#tip{position:fixed;z-index:30;max-width:270px;background:var(--tx);color:var(--bg);padding:8px 11px;border-radius:8px;font-size:13px;line-height:1.4;pointer-events:none;box-shadow:0 3px 10px #0005}#tip b{display:block;font-size:14px;margin-bottom:2px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding:10px 14px;border:2px solid var(--tx);border-radius:10px;background:var(--card);margin:10px 0;font-size:14px;font-weight:600}.legend span{display:flex;align-items:center;gap:7px}
+.legend i{width:16px;height:16px;border-radius:50%;border:2px solid var(--tx);display:inline-block}.legend i.sq{border-radius:3px}.legend i.ln{width:26px;height:6px;border-radius:3px;border:0}
+.ftitle{font:700 21px Georgia,serif;margin:0 0 4px}
+@media(max-width:700px){.row,.rowp,.two{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style></head><body>
+<div id="gate"><div id="gf"><h1>Muscle Tissue Virtual Lab</h1><label>Full Name<input id="gn" autocomplete="name" maxlength="80" required></label>
+<label>Group Number<select id="gg" required><option value="" disabled selected>Select Group</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+<label>Student Number<input id="gi" maxlength="20" autocomplete="off" required></label>
+<div class="err" id="ge" role="alert"></div><button type="button" class="pr" id="gs">Start Lab</button></div></div>
+<header hidden><h1>Muscle Tissue Virtual Lab</h1><nav id="tabs"></nav><div id="who"></div></header>
+<main id="m" hidden></main>
+<script>
+const $=(s,e=document)=>e.querySelector(s),css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+const NM={sk:'Skeletal',ca:'Cardiac',sm:'Smooth'};
+const gl=[['Sarcomere','The repeating contractile unit of a muscle fiber, between two Z lines'],['Actin','The thin filament that myosin heads pull on'],['Myosin','The thick filament whose heads form cross-bridges with actin'],['Troponin and Tropomyosin','Proteins on actin that block the binding sites until calcium binds troponin'],['Sarcoplasmic Reticulum','Stores calcium and releases it when the muscle is stimulated'],['Cross-Bridge','A myosin head attached to actin'],['Striations','Light and dark bands from the regular arrangement of sarcomeres'],['Intercalated Disc','A junction between cardiac cells that lets them contract as one unit'],['Sphincter','A ring of muscle that opens and closes a body passage'],['Glycogen','The stored form of glucose']];
+const def=i=>{$('#gdef').innerHTML=`<p><b>${gl[i][0]}:</b> ${gl[i][1]}.</p>`};
+function intro(){return `<h2>How This Lab Works</h2><div class="card"><ol><li><b>Muscle Types:</b> explore the three tissues, then identify mystery slides.</li><li><b>Sliding Filament:</b> predict, then send a nerve signal and follow each step in the sarcomere.</li><li><b>Functions:</b> pick a function, predict which tissues are involved, then watch the muscles act.</li><li>Hover over (or tap) any part of a diagram to see its label and a short definition. Mystery slides have no labels.</li><li>Your runs are recorded in the Log tab for your post-lab.</li></ol><p class="mu">This is a schematic teaching model. Timings are exaggerated so each step is easy to follow.</p></div>
+<div class="card"><h3>Vocabulary: Select a Term</h3><p>${gl.map(([t],i)=>`<button class="term" onclick="def(${i})">${t}</button>`).join('')}</p><div id="gdef" class="res"><p class="mu">Select a term to see its meaning.</p></div></div>
+<div class="card"><h3>Learning Objectives</h3><ul><li>List the major roles of muscle tissues</li><li>Compare how muscle types contribute to body control and function</li><li>Differentiate smooth, cardiac and skeletal muscle by microstructure and relate it to organ function</li><li>Define the sliding filament theory</li><li>Link contraction and relaxation to thermoregulation, digestion, circulation and motor function</li></ul></div>`}
+/* ---------- Muscle types ---------- */
+const MT={sk:{n:'Skeletal',s:'Yes',nu:'Many, at the Edge',b:'No',d:'Absent',v:'Voluntary',f:'Fast, Powerful, Tires'},ca:{n:'Cardiac',s:'Yes',nu:'One, Central',b:'Yes',d:'Present',v:'Involuntary',f:'Rhythmic, Resists Fatigue'},sm:{n:'Smooth',s:'No',nu:'One, Central',b:'No',d:'Absent',v:'Involuntary',f:'Slow, Sustained'}};
+const SD='<defs><pattern id="st" width="8" height="10" patternUnits="userSpaceOnUse"><rect width="4" height="10" style="fill:var(--bd)"/></pattern></defs>';
+const STR='Striations|Light and dark bands created by the regular arrangement of sarcomeres. Skeletal and cardiac muscle have them, and smooth muscle does not.';
+const tp=(t,x)=>t?` data-tip="${x}"`:'';
+const nu=(x,y,rx,ry,t,x2)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" style="fill:var(--ctl)"${tp(t,x2)}/>`;
+const SL={sk:t=>SD+[10,52,94,136].map((y,r)=>`<rect x="10" y="${y}" width="280" height="34" rx="6" style="fill:url(#st);stroke:var(--mu);stroke-width:2"${tp(t,STR)}/><rect x="10" y="${y}" width="280" height="34" rx="6" style="fill:none;stroke:transparent;stroke-width:10;pointer-events:stroke"${tp(t,'Skeletal Muscle Fiber|A long, cylindrical, unbranched cell with many nuclei.')}/>`+[40,110,190,255].map((x,i)=>nu(x+(r%2)*15,y+(i%2?29:5),7,3,t,'Nucleus|Skeletal fibers have many nuclei, pushed to the edge of the cell.')).join('')).join(''),
+ ca:t=>SD+[20,77,134].map(y=>`<rect x="10" y="${y}" width="280" height="26" rx="5" style="fill:url(#st);stroke:var(--mu);stroke-width:2"${tp(t,STR)}/><rect x="10" y="${y}" width="280" height="26" rx="5" style="fill:none;stroke:transparent;stroke-width:10;pointer-events:stroke"${tp(t,'Cardiac Muscle Fiber|A striated cell that branches and links with its neighbors.')}/>`+nu(60,y+13,8,6,t,'Nucleus|Cardiac cells usually have one nucleus, near the center.')+nu(180,y+13,8,6,t,'Nucleus|Cardiac cells usually have one nucleus, near the center.')+[110,240].map(x=>`<rect x="${x}" y="${y}" width="4" height="26" style="fill:var(--dg)"${tp(t,'Intercalated Disc|A junction between cardiac cells that lets them contract as one unit.')}/>`).join('')).join('')+`<path d="M200 46L228 77M228 103L200 134M90 46L62 77M62 103L90 134" style="stroke:var(--mu);stroke-width:14;fill:none;opacity:.6"${tp(t,'Branch|Cardiac fibers branch and connect into a network.')}/>`,
+ sm:t=>[0,1,2,3,4].map(r=>[0,1,2].map(c=>{const x=10+c*95+(r%2)*45,y=14+r*34;return `<path d="M${x} ${y+12}C${x+25} ${y-4} ${x+65} ${y-4} ${x+90} ${y+12}C${x+65} ${y+28} ${x+25} ${y+28} ${x} ${y+12}Z" style="fill:var(--card);stroke:var(--mu);stroke-width:2"${tp(t,'Smooth Muscle Cell|A spindle-shaped cell with no striations.')}/>`+nu(x+45,y+12,9,5,t,'Nucleus|Smooth muscle cells have one nucleus, in the center.')}).join('')).join('')};
+const OG=[['Biceps (Arm)','sk','Powerful voluntary movement needs long, multinucleate striated fibers with organized sarcomeres. They contract fast and strongly but tire.'],['Heart Wall','ca','Beating for life needs fatigue resistance and coordination: branched striated fibers joined by intercalated discs contract as one unit.'],['Intestine Wall','sm','Slow, sustained, involuntary waves suit spindle-shaped cells without striations, which can stay contracted without tiring.'],['Artery Wall','sm','Vessel diameter must be adjusted slowly and continuously without conscious control, which smooth muscle does with little energy.']];
+const done={},keys=Object.keys(MT),FI=['f1','f2','f3','f4','ft'];let cur=null,tries=0;
+function typesView(){const sel=(id,l,o)=>`<label>${l}<select id="${id}"><option value="" disabled selected>Select</option>${o.map(x=>`<option>${x}</option>`).join('')}</select></label>`;
+return `<h2>Types of Muscle Tissue</h2>
+<div class="card"><h3>1. Explore</h3><div>${keys.map(k=>`<button class="seg" onclick="ex('${k}')">${MT[k].n}</button>`).join('')}</div><svg class="slide" id="exs" viewBox="0 0 300 180" role="img" aria-label="Muscle tissue slide"><text x="150" y="95" text-anchor="middle" style="fill:var(--mu);font:14px system-ui">Select a Tissue Above</text></svg></div>
+<div class="card"><h3>2. Mystery Slide <span id="mc" class="mu"></span></h3><svg class="slide" id="mys" viewBox="0 0 300 180" role="img" aria-label="Mystery muscle tissue slide"></svg>
+<div class="ctl">${sel('f1','Striations',['Yes','No'])}${sel('f2','Nuclei',['One, Central','Many, at the Edge'])}${sel('f3','Branched Fibers',['Yes','No'])}${sel('f4','Intercalated Discs',['Present','Absent'])}${sel('ft','Tissue Type',['Skeletal','Cardiac','Smooth'])}</div>
+<p><button class="pr" onclick="chk()">Check</button> <button class="pr" id="nx" onclick="nxt()" hidden>Next Slide</button></p><div class="res" id="mr" role="status"></div></div>
+<div id="cmp" hidden><div class="card"><h3>Comparison</h3><table><tr><th></th>${keys.map(k=>`<th>${MT[k].n}</th>`).join('')}</tr>${[['Striations','s'],['Nuclei','nu'],['Branched Fibers','b'],['Intercalated Discs','d'],['Control','v'],['Contraction','f']].map(([l,p])=>`<tr><th>${l}</th>${keys.map(k=>`<td>${MT[k][p]}</td>`).join('')}</tr>`).join('')}</table><p class="mu">What do all three have in common? Add it to your log.</p></div>
+<div class="card"><h3>Structure and Function</h3><label>Organ <select id="so" onchange="so()">${OG.map((o,i)=>`<option value="${i}">${o[0]}</option>`).join('')}</select></label><div id="sx" class="res"></div></div></div>`}
+function ex(k){$('#exs').innerHTML=SL[k](true)}
+function so(){const o=OG[+$('#so').value];$('#sx').innerHTML=`<p><b>${MT[o[1]].n} muscle.</b> ${o[2]}</p>`}
+function nxt(){const left=keys.filter(k=>!done[k]);if(!left.length)return;cur=left[Math.floor(Math.random()*left.length)];tries=0;$('#mys').innerHTML=SL[cur]();$('#mr').innerHTML='';$('#nx').hidden=true;FI.forEach(i=>$('#'+i).selectedIndex=0);$('#mc').textContent=`(${Object.keys(done).length} of 3 Identified)`}
+function chk(){const m=MT[cur],v=FI.map(i=>$('#'+i).value),t=[m.s,m.nu,m.b,m.d,m.n],lab=['Striations','Nuclei','Branched Fibers','Intercalated Discs','Tissue Type'];
+ if(v.includes('')){$('#mr').innerHTML='<p class="bad">Answer every question first.</p>';return}
+ tries++;const bad=v.map((x,i)=>x===t[i]?-1:i).filter(i=>i>=0);
+ if(bad.length){$('#mr').innerHTML=`<p class="bad">Not quite. Recheck: ${bad.map(i=>lab[i]).join(', ')}.</p>`;return}
+ done[cur]=1;const n=Object.keys(done).length;$('#mr').innerHTML=`<p class="good">Correct: this is ${m.n} muscle.</p>`;$('#mc').textContent=`(${n} of 3 Identified)`;lg(`Muscle Types | Identified ${m.n} | Attempts: ${tries}`);
+ if(n===3){$('#cmp').hidden=false;so()}else $('#nx').hidden=false}
+/* ---------- Sliding Filament ---------- */
+const SS=[['Nerve Signal','A motor neuron signal travels along the muscle cell membrane.'],['Calcium Released','The sarcoplasmic reticulum releases Ca²⁺ into the fiber.'],['Calcium Binds Troponin','Ca²⁺ binds troponin, tropomyosin shifts, and the binding sites on actin are exposed.'],['Cross-Bridges Form','Myosin heads attach to the exposed sites on actin.'],['Power Stroke','Using ATP, the heads pivot and pull the thin filaments toward the center, so the sarcomere shortens.'],['Relaxation','Ca²⁺ returns to the sarcoplasmic reticulum, the heads release, and the sarcomere lengthens again.']];
+const T0=[0,14,28,42,56,110],FF=(n,r)=>n<56?0:n<86?r*(n-56)/30:n<110?r:n<140?r*(1-(n-110)/30):0;
+let sli,hot=[];
+function slView(){const lg=[['ln','--rec','Actin (Thin Filament)'],['ln','--ctl','Myosin (Thick Filament)'],['h','--card','Myosin Head: Detached'],['','--eff','Myosin Head: Attached'],['','--wa','Calcium Ion (Ca²⁺)'],['sq','--mu','Binding Site: Blocked'],['sq','--ok','Binding Site: Exposed'],['ln','--dg','Tropomyosin'],['ln','--tx','Z Line']];
+return `<h2>The Sliding Filament Theory</h2>
+<div class="card"><div class="ctl"><label>Calcium Level<select id="ca"><option value="1">Normal</option><option value=".3">Low (Deficiency)</option></select></label>
+<label>Predict the Contraction<select id="pc"><option value="" disabled selected>Select</option><option>Normal Strength</option><option>Weaker</option><option>No Contraction</option></select></label>
+<label>Predict the First Step Affected<select id="ps"><option value="" disabled selected>Select</option>${SS.map((s,i)=>`<option value="${i}">${s[0]}</option>`).join('')}<option value="-1">No Step Is Affected</option></select></label>
+<button class="pr" onclick="runSl()">Lock Prediction &amp; Send Signal</button></div></div>
+<div class="now" id="nw-sl" role="status">Choose a calcium level, make your predictions, and send the signal.</div>
+<div class="path" id="sp">${SS.map((s,i)=>`<div class="box" data-i="${i}"><b>Step ${i+1}</b><br>${s[0]}</div>`).join('<span class="ar">→</span>')}</div>
+<div class="legend"><b>Legend:</b>${lg.map(([k,c,t])=>`<span><i class="${k}" style="background:var(${c})${k==='h'?';border-color:var(--ctl);border-width:3px':''}"></i>${t}</span>`).join('')}</div>
+<canvas id="cv-sl" width="640" height="300" aria-label="Sarcomere animation. Hover over a part to see its name."></canvas>
+<p class="mu">Hover over any part of the diagram to see its name and definition.</p>
+<div class="card"><h3 class="ftitle">Muscle Force Over Time</h3><p class="mu">Each numbered line marks the start of a step. Force rises during the power stroke and falls during relaxation.</p><canvas id="cv-fr" width="640" height="220" aria-label="Graph of muscle force over time"></canvas></div>
+<div class="res" id="rz-sl"></div>`}
+function drawSl(n,r,st){const cv=$('#cv-sl'),g=cv.getContext('2d'),W=cv.width,cx=W/2,c=v=>css(v);g.clearRect(0,0,W,300);hot=[];const labs=[];
+ const H=(x0,y0,x1,y1,t)=>hot.push({x0,y0,x1,y1,t}),f=FF(n,r),L=300*(1-.25*f),zl=cx-L/2,zr=cx+L/2,rl=n>110?Math.min(1,(n-110)/30):0,hit=j=>((j*37)%100)/100,TY=[120,150,180],open=st>=2&&st<=4,prog=r?f/r:0;
+ g.lineCap='round';g.font='bold 15px system-ui';g.textAlign='center';g.fillStyle=c('--ac');g.fillText(st>=0?`Step ${st+1}: ${SS[st][0]}`:'Ready: Send the Signal',cx,16);g.font='bold 12px system-ui';g.lineWidth=4;g.strokeStyle=c('--mu');g.beginPath();g.moveTo(10,26);g.lineTo(110,26);g.stroke();g.fillStyle=c('--mu');g.beginPath();g.arc(116,26,7,0,7);g.fill();
+ g.strokeStyle=st>=1&&st<=4?c('--wa'):c('--mu');g.beginPath();g.moveTo(110,52);g.lineTo(630,52);g.stroke();
+ g.fillStyle=c('--tx');g.textAlign='left';g.fillText('Motor Neuron',10,14);g.textAlign='right';g.fillText('Sarcolemma (Cell Membrane)',630,44);g.textAlign='center';
+ H(10,18,124,34,'Motor Neuron|A nerve cell that sends the signal telling the muscle to contract.');H(116,46,630,58,'Sarcolemma|The muscle cell membrane. The signal travels along it.');
+ if(st===0){const p=Math.min(1,n/14),x=p<.5?10+p*212:116+(p-.5)*1000,y=p<.5?26:52;g.fillStyle=c('--wa');g.strokeStyle=c('--tx');g.lineWidth=2;g.beginPath();g.arc(x,y,8,0,7);g.fill();g.stroke()}
+ [64,246].forEach(y=>{g.globalAlpha=.18;g.fillStyle=c('--wa');g.fillRect(140,y,360,18);g.globalAlpha=1;g.strokeStyle=c('--wa');g.lineWidth=2;g.strokeRect(140,y,360,18);H(140,y,500,y+18,'Sarcoplasmic Reticulum|Stores calcium ions and releases them when the fiber is stimulated.')});
+ labs.push(['Sarcoplasmic Reticulum (Ca²⁺ Store)',146,77,11,'left'],['Sarcoplasmic Reticulum',146,259,11,'left']);
+ TY.forEach(y=>[[zl,1],[zr,-1]].forEach(([z,d])=>{g.strokeStyle=c('--rec');g.lineWidth=5;g.beginPath();g.moveTo(z,y);g.lineTo(z+d*120,y);g.stroke();H(Math.min(z,z+d*120),y-4,Math.max(z,z+d*120),y+4,'Actin (Thin Filament)|The thin filament, anchored at the Z line. Myosin heads pull on it.');
+  for(let k=1;k<6;k++){const x=z+d*k*20,ex=open&&hit(k+y)<r&&rl<.5;g.fillStyle=ex?c('--ok'):c('--mu');g.fillRect(x-4,y-4,8,8);g.strokeStyle=c('--dg');g.lineWidth=4;g.beginPath();g.moveTo(x-6,y+(ex?-10:0));g.lineTo(x+6,y+(ex?-10:0));g.stroke();H(x-9,y-12,x+9,y+4,'Actin Binding Site|Where a myosin head attaches. Tropomyosin covers it until calcium binds troponin.')}}));
+ [135,165].forEach(y=>{g.strokeStyle=c('--ctl');g.lineWidth=9;g.beginPath();g.moveTo(cx-80,y);g.lineTo(cx+80,y);g.stroke();H(cx-80,y-5,cx+80,y+5,'Myosin (Thick Filament)|The thick filament, made of myosin. Its heads reach out toward actin.')});
+ [135,165].forEach((y,fi)=>{for(let j=0;j<10;j++){const x=cx-72+j*16;if(Math.abs(x-cx)<10)continue;const up=(j+fi)%2?-1:1,ov=x<cx?x<zl+120:x>zr-120,h=hit(j+fi*10),att=ov&&((st>=3&&st<=4&&h<r)||(st===5&&h<r*(1-rl))),ang=x<cx?1:-1,off=att?ang*7*(2*(st===3?0:st===4?prog:1-rl)-1):-ang*4,hx=x+off,hy=att?y+up*11:y+up*8;
+  g.strokeStyle=c('--ctl');g.lineWidth=3;g.beginPath();g.moveTo(x,y);g.lineTo(hx,hy);g.stroke();g.fillStyle=att?c('--eff'):c('--card');g.strokeStyle=att?c('--tx'):c('--ctl');g.lineWidth=att?2:3;g.beginPath();g.arc(hx,hy,5.5,0,7);g.fill();g.stroke();
+  H(hx-7,hy-7,hx+7,hy+7,att?'Myosin Head (Attached)|Bound to actin as a cross-bridge. It pivots to pull the thin filament toward the center.':'Myosin Head (Detached)|Ready to bind actin once the binding sites are exposed.')}});
+ g.strokeStyle=c('--tx');g.lineWidth=6;[zl,zr].forEach(x=>{g.beginPath();g.moveTo(x,98);g.lineTo(x,202);g.stroke();H(x-6,98,x+6,202,'Z Line|The boundary of a sarcomere. Thin filaments anchor here, and the Z lines move closer as the muscle contracts.')});
+ labs.push(['Z Line',zl,90],['Z Line',zr,90]);
+ if(zr-zl-240>10){g.globalAlpha=.16;g.fillStyle=c('--wa');g.fillRect(zl+120,100,zr-zl-240,100);g.globalAlpha=1;labs.push(['H Zone',cx,108]);H(zl+120,100,zr-120,200,'H Zone|The center region with only thick filaments. It shrinks or disappears as the muscle contracts.')}
+ const bar=(a,b,col,t,tip,lab)=>{g.strokeStyle=c(col);g.lineWidth=6;g.beginPath();g.moveTo(a,216);g.lineTo(b,216);g.stroke();if(lab)labs.push([t,(a+b)/2,234]);H(a,210,b,222,tip)};
+ bar(cx-80,cx+80,'--ctl','A Band','A Band|The full length of the thick filaments. It stays the same length during contraction.',1);
+ [[zl,cx-80],[cx+80,zr]].forEach(([a,b])=>bar(a,b,'--rec','I Band','I Band|The region with only thin filaments. It shrinks during contraction.',b-a>34));
+ for(let i=0;i<24;i++){const hx=356+(i>>1)*11.5,hy=i%2?255:73,rel=i<24*r,sd=(i>>1)&1?1:-1,k=1+i%5,tx=sd>0?zl+k*20:zr-k*20,ty=TY[i%3]-10,q=!rel?0:st===1?Math.min(1,(n-14)/14):st>=2&&st<=4?1:st===5?1-rl:0,x=hx+(tx-hx)*q,y=hy+(ty-hy)*q;
+  g.fillStyle=c('--wa');g.strokeStyle=c('--tx');g.lineWidth=1.5;g.beginPath();g.arc(x,y,4,0,7);g.fill();g.stroke();H(x-6,y-6,x+6,y+6,'Calcium Ion (Ca²⁺)|Released from the sarcoplasmic reticulum. It binds troponin so the binding sites can open.')}
+ if(st===4||st===5){g.fillStyle=c('--eff');g.font='bold 14px system-ui';g.fillText(st===4?'ATP Supplies Energy for the Power Stroke':'ATP Binds, So the Heads Release',cx,291)}
+
+ g.lineJoin='round';labs.forEach(([t,x,y,fs,al])=>{g.font=`bold ${fs||12}px system-ui`;g.textAlign=al||'center';g.lineWidth=4;g.strokeStyle=c('--card');g.strokeText(t,x,y);g.fillStyle=c('--tx');g.fillText(t,x,y)});
+ hot.sort((a,b)=>(a.x1-a.x0)*(a.y1-a.y0)-(b.x1-b.x0)*(b.y1-b.y0))}
+function drawFr(n,r){const cv=$('#cv-fr'),g=cv.getContext('2d'),W=cv.width,c=v=>css(v),X=t=>72+t/150*(W-88),Y=v=>190-v*140;g.clearRect(0,0,W,220);g.lineCap='round';
+ g.strokeStyle=c('--bd');g.lineWidth=1;g.setLineDash([5,5]);g.beginPath();g.moveTo(72,Y(1));g.lineTo(W-10,Y(1));g.stroke();g.setLineDash([]);
+ T0.forEach((t,i)=>{g.strokeStyle=c('--mu');g.setLineDash([3,4]);g.beginPath();g.moveTo(X(t),24);g.lineTo(X(t),190);g.stroke();g.setLineDash([]);g.fillStyle=c('--mu');g.beginPath();g.arc(X(t),14,9,0,7);g.fill();g.fillStyle=c('--bg');g.font='bold 12px system-ui';g.textAlign='center';g.fillText(i+1,X(t),18)});
+ g.strokeStyle=c('--tx');g.lineWidth=2;g.beginPath();g.moveTo(72,24);g.lineTo(72,190);g.lineTo(W-10,190);g.stroke();
+ g.fillStyle=c('--tx');g.font='bold 13px system-ui';g.textAlign='right';g.fillText('100%',66,Y(1)+4);g.fillText('0%',66,194);g.textAlign='center';g.fillText('Time',(72+W-10)/2,213);g.save();g.translate(13,110);g.rotate(-Math.PI/2);g.fillText('Muscle Force (% of Normal Peak)',0,0);g.restore();
+ g.strokeStyle=c('--ac');g.lineWidth=4;g.beginPath();for(let t=0;t<=Math.min(n,150);t++){const x=X(t),y=Y(FF(t,r));t?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();
+ if(n>0&&n<=150){g.fillStyle=c('--eff');g.beginPath();g.arc(X(n),Y(FF(n,r)),6,0,7);g.fill()}}
+function runSl(){clearInterval(sli);const r=+$('#ca').value,pc=$('#pc').value,ps=$('#ps').value;if(!pc||ps===''){$('#rz-sl').innerHTML='<p class="bad">Make both predictions first.</p>';return}
+ let n=0,last=-1;const bx=document.querySelectorAll('#sp .box'),nw=$('#nw-sl');$('#rz-sl').innerHTML='';
+ sli=setInterval(()=>{const st=T0.filter(t=>n>=t).length-1;
+  if(st!==last){last=st;bx.forEach((b,i)=>{b.classList.toggle('on',i===st);b.classList.toggle('done',i<st)});nw.textContent=SS[st][1]+(r<1&&st>=1&&st<=3?' (Less calcium is available, so fewer sites are exposed.)':'')}
+  drawSl(n,r,st);drawFr(n,r);n++;
+  if(n>150){clearInterval(sli);bx.forEach(b=>b.classList.remove('on'));nw.textContent='Run complete. Compare the force graph with your prediction.';
+   const ac=r===1?'Normal Strength':'Weaker',as=r===1?-1:1,nm=i=>i<0?'None':SS[i][0];
+   $('#rz-sl').innerHTML=`<p class="${pc===ac?'good':'bad'}">Contraction: you predicted <b>${pc}</b>; the run showed <b>${ac}</b> (peak force ${Math.round(r*100)}% of normal).</p><p class="${+ps===as?'good':'bad'}">First step affected: you predicted <b>${nm(+ps)}</b>; actual: <b>${nm(as)}</b>.</p>${r<1?'<p>Clinically, low blood calcium also makes nerves overexcitable, so cramps and spasms can occur alongside weakness.</p>':''}`;
+   lg(`Sliding Filament | Calcium: ${r===1?'Normal':'Low'} | Predicted: ${pc} / ${nm(+ps)} | Observed: ${ac} / ${nm(as)}`)}},100)}
+/* ---------- Functions ---------- */
+const FN=[{n:'Movement',s:[['Skeletal Muscle: Limb Movement','sk','Skeletal muscles attached to bones pull across the joints, so the skeleton moves. Facial muscles also express emotion.',['arm','leg']],['Skeletal Muscle: Breathing','sk','Skeletal muscles of the chest and diaphragm expand and shrink the chest to move air.',['core']],['Smooth Muscle: Moving Food','sm','Smooth muscle in the esophagus and intestine squeezes food along in waves.',['eso','gut']],['Cardiac and Smooth Muscle: Circulation','ca sm','Cardiac muscle pumps the blood, and smooth muscle in the vessel walls adjusts the flow.',['heart','vess']],['Smooth Muscle: Urination and Defecation','sm','Smooth muscle in the bladder and bowel walls contracts to push the contents out.',['gut']]]},
+{n:'Stability',s:[['Skeletal Muscle: Holding Posture','sk','Skeletal muscles of the trunk and legs keep contracting lightly to hold the body upright.',['core','leg']],['Skeletal Muscle: Preventing Movement','sk','Skeletal muscles resist unwanted movement at the joints. Without them the body would collapse.',['core','leg','arm']]]},
+{n:'Digestion',s:[['Skeletal Muscle: Swallowing','sk','Skeletal muscles in the mouth and throat push the food into the esophagus. This first part is voluntary.',['throat']],['Smooth Muscle: Esophagus Peristalsis','sm','Waves of smooth muscle contraction squeeze the food down the esophagus, even if you are lying down.',['eso']],['Smooth Muscle: Esophageal Sphincter','sm','A ring of smooth muscle, the lower esophageal sphincter, relaxes to let food into the stomach and then closes.',['les']],['Smooth Muscle: Stomach Churning','sm','Layers of smooth muscle in the stomach wall contract in different directions to churn the food and mix it with stomach juices.',['stom']],['Smooth Muscle: Pyloric Sphincter','sm','The smooth muscle pyloric sphincter opens briefly to release small amounts of the mixed food into the small intestine.',['pyl']]]},
+{n:'Muscular Thermoregulation',s:[['Skeletal Muscle: Heat at Rest','sk','At rest, skeletal muscle contractions produce up to 30% of the body heat.',['core','leg','arm']],['Skeletal Muscle: Heat in Exercise','sk','During exercise, skeletal muscle heat production can rise up to 40 times.',['leg','arm','core']],['Smooth Muscle: Skin Arteries Contract','sm','In the cold, the ring of smooth muscle in the skin artery wall contracts, so the artery narrows, less blood reaches the skin, and less heat is lost.',['skin']],['Smooth Muscle: Skin Arteries Relax','sm','When hot, the ring of smooth muscle in the skin artery wall relaxes, so the artery widens, more blood reaches the skin, and more heat is lost.',['skin']]]},
+{n:'Glycemic Control',s:[['Skeletal Muscle: Glucose Uptake','sk','After a meal, skeletal muscle absorbs glucose from the blood, which helps keep blood sugar stable.',['leg','arm']],['Skeletal Muscle: Glycogen Storage','sk','Skeletal muscle stores the glucose as glycogen, up to about 500 g in total.',['leg','arm','core']],['Skeletal Muscle: Energy From Glycogen','sk','When needed, skeletal muscle converts glycogen to energy for its own cells.',['leg']]]}];
+const TX=(x,y,t,e,tip)=>`<text x="${x}" y="${y}" data-id="${e}" data-tip="${tip}">${t}</text>`;
+const TP={arm:'Arm Muscles|Skeletal muscles attached to bones that move the arm.',leg:'Leg Muscles|Skeletal muscles that move the legs and hold the body upright.',core:'Trunk Muscles|Skeletal muscles of the chest and abdomen that support posture and breathing.',vess:'Blood Vessels|Smooth muscle in the vessel walls adjusts the flow of blood.',skin:'Skin Arteries|Smooth muscle narrows or widens these arteries to control heat loss.',heart:'Heart|Cardiac muscle that pumps blood around the body.',gut:'Intestine|Smooth muscle that keeps moving food along by peristalsis.',throat:'Throat Muscles|Skeletal muscles that you control to start a swallow.',eso:'Esophagus|A tube whose smooth muscle squeezes food downward in waves called peristalsis.',stom:'Stomach|Its smooth muscle wall churns the food and mixes it with stomach juices.',les:'Lower Esophageal Sphincter|A ring of smooth muscle that opens to let food into the stomach, then closes.',pyl:'Pyloric Sphincter|A ring of smooth muscle that releases small amounts of food into the small intestine.'};
+const FB=`<svg class="dv" id="dg-fn" viewBox="0 0 250 220" role="img" aria-label="Body showing muscle groups. Hover over a part to see its name."><g class="bdy"><circle cx="80" cy="28" r="18"/><rect x="52" y="50" width="56" height="82" rx="18"/></g>
+<rect class="org" data-id="arm" data-tip="${TP.arm}" x="30" y="54" width="16" height="70" rx="8"/><rect class="org" data-id="arm" data-tip="${TP.arm}" x="114" y="54" width="16" height="70" rx="8"/>
+<rect class="org" data-id="leg" data-tip="${TP.leg}" x="56" y="134" width="20" height="76" rx="9"/><rect class="org" data-id="leg" data-tip="${TP.leg}" x="84" y="134" width="20" height="76" rx="9"/>
+<rect class="org" data-id="core" data-tip="${TP.core}" x="54" y="58" width="6" height="58" rx="3"/><rect class="org" data-id="core" data-tip="${TP.core}" x="100" y="58" width="6" height="58" rx="3"/>
+<path class="vs" data-id="vess" data-tip="${TP.vess}" d="M66 54V120M100 54V64M100 84V120"/><path class="vs" data-id="skin" data-tip="${TP.skin}" d="M48 70Q42 90 48 110M112 70Q118 90 112 110"/>
+<g transform="translate(42,22) scale(.6)"><g class="hb"><path class="org" data-id="heart" data-tip="${TP.heart}" d="M80 100C58 86 62 70 73 72C77 73 80 76 80 79C80 76 83 73 87 72C98 70 102 86 80 100Z"/></g></g>
+<rect class="org" data-id="throat" data-tip="${TP.throat}" x="72" y="40" width="16" height="10" rx="4"/>
+<path class="vs" data-id="eso" data-tip="${TP.eso}" style="stroke-width:5" d="M80 50V96"/>
+<ellipse class="org" data-id="stom" data-tip="${TP.stom}" cx="90" cy="107" rx="13" ry="10"/>
+<circle class="org" data-id="les" data-tip="${TP.les}" cx="81" cy="98" r="3.8"/><circle class="org" data-id="pyl" data-tip="${TP.pyl}" cx="102" cy="112" r="3.8"/>
+<path class="vs" data-id="gut" data-tip="${TP.gut}" style="stroke-width:5" d="M58 123q7-6 14 0t14 0t14 0M58 129q7-6 14 0t14 0t14 0"/>
+${TX(138,50,'Throat Muscles','throat',TP.throat)}${TX(138,62,'Esophagus','eso',TP.eso)}${TX(138,74,'Heart','heart',TP.heart)}${TX(138,86,'Blood Vessels','vess',TP.vess)}${TX(138,98,'Stomach','stom',TP.stom)}${TX(138,110,'Sphincters','les pyl',TP.les)}${TX(138,122,'Intestine','gut',TP.gut)}${TX(138,134,'Skin Vessels','skin',TP.skin)}${TX(138,146,'Trunk Muscles','core',TP.core)}${TX(138,158,'Limb Muscles','arm leg',TP.leg)}</svg>`;
+const ART=`<h3>Skin Artery Cross-Section</h3><svg class="slide" id="asv" viewBox="0 0 200 200" style="max-width:240px" role="img" aria-label="Cross-section of a skin artery with a ring of smooth muscle"><circle id="a-out" cx="100" cy="100" r="66" style="fill:none;stroke:var(--mu);stroke-width:2;stroke-dasharray:5 4"/><circle id="a-mus" cx="100" cy="100" r="51" style="fill:none;stroke:var(--eff)" data-tip="Smooth Muscle Layer|A ring of smooth muscle cells around the artery. When they contract the opening narrows, and when they relax it widens."/><circle id="a-cel" cx="100" cy="100" r="51" style="fill:none;stroke:var(--card);stroke-dasharray:2 9;opacity:.7;pointer-events:none"/><circle id="a-lum" cx="100" cy="100" r="38" style="fill:var(--dg);fill-opacity:.3;stroke:var(--dg);stroke-width:3" data-tip="Lumen|The hollow center of the artery where blood flows. Its width controls how much blood reaches the skin."/><text id="a-txt" x="100" y="104" text-anchor="middle" style="font:bold 12px system-ui;fill:var(--tx);pointer-events:none">Blood</text></svg><p id="acap" class="now" style="max-width:420px">Skin Artery at Rest</p>`;
+const art={v:.5,t:.5};
+function setArt(){const v=art.v,rin=40-24*v,rout=62-4*v,th=rout-rin,mid=(rin+rout)/2,a=$('#a-mus'),b=$('#a-cel'),l=$('#a-lum'),o=$('#a-out'),x=$('#a-txt');if(!a)return;
+ [a,b].forEach(e=>{e.setAttribute('r',mid);e.style.strokeWidth=th});l.setAttribute('r',Math.max(2,rin-1.5));o.setAttribute('r',rout+5);x.style.opacity=rin>26?1:0}
+function selFn(){const th=FN[+$('#fs').value].n==='Muscular Thermoregulation';$('#art').hidden=!th;if(th){art.v=art.t=.5;setArt();$('#acap').textContent='Skin Artery at Rest'}}
+function fnView(){return `<h2>Functions of Muscle Tissue</h2><div class="card"><div class="ctl"><label>Function<select id="fs" onchange="selFn()">${FN.map((f,i)=>`<option value="${i}">${f.n}</option>`).join('')}</select></label>
+<fieldset style="border:0;padding:0;margin:0"><legend style="font-size:13px">Predict: Which Tissues Contribute?</legend><div id="fp" style="display:flex;gap:12px;flex-wrap:wrap">${['sk','ca','sm'].map(t=>`<label class="cb"><input type="checkbox" value="${t}"> ${NM[t]}</label>`).join('')}</div></fieldset>
+<button class="pr" onclick="runFn()">Lock Prediction &amp; Run</button></div></div>
+<div class="now" id="nw-fn" role="status">Choose a function, predict, and run.</div><div class="path" id="fb"></div>
+<div class="rowp">${FB}<div><div id="art" hidden>${ART}</div><div id="fr" class="res"></div></div></div>`}
+let fni;
+function runFn(){clearInterval(fni);const f=FN[+$('#fs').value],pr=[...document.querySelectorAll('#fp input:checked')].map(i=>i.value),sv=$('#dg-fn'),nw=$('#nw-fn');
+ if(!pr.length){$('#fr').innerHTML='<p class="bad">Select at least one tissue to make your prediction.</p>';return}
+ let n=0,last=-1;$('#fr').innerHTML='';$('#fb').innerHTML=f.s.map((s,i)=>`<div class="box" data-i="${i}"><b>Step ${i+1}</b><br>${s[0]}</div>`).join('<span class="ar">→</span>');const bx=document.querySelectorAll('#fb .box');
+ const th=f.n==='Muscular Thermoregulation';$('#art').hidden=!th;if(th){art.v=art.t=.5;setArt();$('#acap').textContent='Skin Artery at Rest'}
+ fni=setInterval(()=>{const st=Math.floor(n/18);if(th){art.v+=(art.t-art.v)*.15;setArt()}
+  if(st>=f.s.length){clearInterval(fni);bx.forEach(b=>b.classList.remove('on'));sv.querySelectorAll('[data-id]').forEach(e=>e.classList.remove('act'));nw.textContent='Run complete.';fin(f,pr);return}
+  if(st!==last){last=st;const s=f.s[st];if(th){art.t=st===2?1:st===3?0:.5;$('#acap').textContent=st===2?'Cold: Smooth Muscle Contracts, Artery Narrows':st===3?'Hot: Smooth Muscle Relaxes, Artery Widens':'Skin Artery at Rest'}bx.forEach((b,i)=>{b.classList.toggle('on',i===st);b.classList.toggle('done',i<st)});nw.textContent=s[2];sv.querySelectorAll('[data-id]').forEach(e=>e.classList.toggle('act',e.dataset.id.split(' ').some(i=>s[3].includes(i))))}
+  n++},100)}
+function fin(f,pr){const A=['sk','ca','sm'],tr=A.filter(t=>f.s.some(s=>s[1].split(' ').includes(t))),ok=tr.join()===pr.join(),L=a=>a.map(t=>NM[t]).join(', ');
+ $('#fr').innerHTML=`<p class="${ok?'good':'bad'}">You predicted: <b>${L(pr)}</b>. Tissues involved: <b>${L(tr)}</b>.</p><table><tr><th>Tissue</th><th>Contribution</th></tr>${A.map(t=>{const c=f.s.filter(s=>s[1].split(' ').includes(t)).map(s=>s[0].split(': ')[1]||s[0]);return `<tr><th>${NM[t]}</th><td>${c.length?c.join('; '):'None in this function'}</td></tr>`}).join('')}</table>`;
+ lg(`Functions | ${f.n} | Predicted: ${L(pr)} | Involved: ${L(tr)}`)}
+function logView(){return `<h2>Observation Log</h2><p class="mu">Runs are added automatically. Edit freely, then copy it into your post-lab.</p><textarea id="lg" aria-label="Observation Log"></textarea><p><button onclick="copyLog()">Copy Log</button> <button onclick="$('#lg').value=''">Clear</button> <span id="cm" class="mu"></span></p>`}
+function show(id){document.querySelectorAll('.v').forEach(e=>e.hidden=e.id!=='v-'+id);document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===id))}
+const M=$('#m'),views={intro,types:typesView,sl:slView,fn:fnView,log:logView},tabs=[['intro','Intro'],['types','Muscle Types'],['sl','Sliding Filament'],['fn','Functions'],['log','Log']];
+$('#tabs').innerHTML=tabs.map(([i,n])=>`<button data-t="${i}" onclick="show('${i}')">${n}</button>`).join('');
+M.innerHTML=tabs.map(([i])=>`<section class="v" id="v-${i}" hidden>${views[i]()}</section>`).join('');
+const lg=s=>{$('#lg').value+=s+'\n'};
+const tip=document.createElement('div');tip.id='tip';tip.hidden=true;document.body.appendChild(tip);
+const slTip=e=>{const cv=$('#cv-sl'),b=cv.getBoundingClientRect(),x=(e.clientX-b.left)*cv.width/b.width,y=(e.clientY-b.top)*cv.height/b.height,h=hot.find(o=>x>=o.x0&&x<=o.x1&&y>=o.y0&&y<=o.y1);return h?h.t:null};
+const tipFor=e=>{const el=e.target.closest&&e.target.closest('[data-tip]');return el?el.dataset.tip:e.target.id==='cv-sl'?slTip(e):null};
+const showTip=(t,x,y)=>{const[a,b]=t.split('|');tip.innerHTML=`<b>${a}</b>${b}`;tip.hidden=false;tip.style.left=Math.max(8,Math.min(x+14,innerWidth-tip.offsetWidth-8))+'px';tip.style.top=Math.min(y+16,innerHeight-tip.offsetHeight-8)+'px'};
+document.addEventListener('mousemove',e=>{const t=tipFor(e);t?showTip(t,e.clientX,e.clientY):tip.hidden=true});
+document.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;const t=tipFor(e);if(t){showTip(t,e.clientX,e.clientY);setTimeout(()=>tip.hidden=true,3500)}});
+show('intro');nxt();drawSl(0,1,-1);drawFr(0,1);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let who=null;try{who=JSON.parse(sessionStorage.getItem('hlab-who'))}catch(e){}
+function enter(w){who=w;try{sessionStorage.setItem('hlab-who',JSON.stringify(w))}catch(e){}
+ $('#who').innerHTML=`<span>Name: <b>${esc(w.name)}</b></span><span>Group: <b>${esc(w.group)}</b></span><span>Student no.: <b>${esc(w.id)}</b></span><button onclick="leave()">Change Details</button>`;
+ $('#gate').hidden=true;document.querySelector('header').hidden=false;$('#m').hidden=false}
+let lv=0;function leave(){const b=$('#who button');if(!lv){lv=1;b.textContent='Click again to confirm (this clears the log)';setTimeout(()=>{lv=0;b.textContent='Change Details'},4000);return}lv=0;who=null;try{sessionStorage.removeItem('hlab-who')}catch(e){}
+ $('#lg').value='';$('#gn').value='';$('#gg').selectedIndex=0;$('#gi').value='';$('#ge').textContent='';$('#gate').hidden=false;document.querySelector('header').hidden=true;$('#m').hidden=true}
+function copyLog(){const t=`Name: ${who.name}\nGroup: ${who.group}\nStudent Number: ${who.id}\n\n`+$('#lg').value,m=$('#cm'),ok=()=>m.textContent='Copied.',fb=()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let r=false;try{r=document.execCommand('copy')}catch(e){}a.remove();m.textContent=r?'Copied.':'Copy blocked. Select the log text and copy it manually.'};
+ try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}}
+function go(){const n=$('#gn').value.trim().replace(/\s+/g,' '),g=$('#gg').value,i=$('#gi').value.trim(),e=[],bn=!/\S+ \S+/.test(n),bi=!/^20\d*$/.test(i);
+ if(!n)e.push('Enter your name.');else if(bn)e.push('Not a valid full name.');
+ if(!g)e.push('Choose your group.');
+ if(!i)e.push('Enter your student number.');else if(bi)e.push('Not a valid student number.');
+ $('#gn').setAttribute('aria-invalid',!n||bn);$('#gi').setAttribute('aria-invalid',!i||bi);$('#ge').textContent=e.join('\n');
+ if(e.length)return;
+ enter({name:n,group:g,id:i})}
+$('#gs').onclick=go;$('#gf').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go()}});
+if(who&&who.name&&who.group&&who.id)enter(who);
+</script></body></html>
